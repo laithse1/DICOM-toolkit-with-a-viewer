@@ -102,12 +102,9 @@ services:
     restart: unless-stopped
 
   viewer:
-    image: nginx:1.27-alpine
-    volumes:
-      - ./.runtime/ohif-dist:/usr/share/nginx/html:ro
-      - ./infra/viewer/app-config.js:/usr/share/nginx/html/app-config.js:ro
-      - ./infra/viewer/init-service-worker.js:/usr/share/nginx/html/init-service-worker.js:ro
-      - ./infra/viewer/sw.js:/usr/share/nginx/html/sw.js:ro
+    build:
+      context: .
+      dockerfile: viewer/Dockerfile
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/app-config.js || exit 1"]
       interval: 10s
@@ -119,6 +116,8 @@ services:
     image: jodogne/orthanc-plugins:1.12.4
     environment:
       ORTHANC_NAME: DICOM Toolkit Archive
+    ports:
+      - "8042:8042"
     volumes:
       - ./infra/orthanc/orthanc.json:/etc/orthanc/orthanc.json:ro
       - orthanc-storage:/var/lib/orthanc/db
